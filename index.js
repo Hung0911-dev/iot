@@ -20,7 +20,6 @@ async function setupMqttAndMongo() {
     try {
         console.log("Attempting to connect to MongoDB...");
         await client.connect();
-        console.log(1)
         console.log("Connected to MongoDB");
         const database = client.db("iotData");
         TOPICS.map(async (topic) => {
