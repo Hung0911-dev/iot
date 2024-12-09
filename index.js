@@ -25,7 +25,7 @@ async function setupMqttAndMongo() {
         TOPICS.map(async (topic) => {
             const collection = database.collection(topic);
             const documents = await collection.find({}).toArray();
-            console.log("Documents:", documents);
+            console.log(`${topic}'s Document`, documents);
         })
         mqttClient.on('connect', () => {
             console.log('Connected to HiveMQ');
