@@ -14,7 +14,7 @@ const mqttClient = mqtt.connect("mqtts://eb4d5208a7ea4b5ea2269b63abb4237c.s1.eu.
     rejectUnauthorized: true
 });
 
-const TOPICS = ["IoT/OutDoor", "IoT/InDoor"];
+const TOPICS = ["IoT_OutDoor", "IoT_InDoor"];
 
 async function setupMqttAndMongo() {
     try {
