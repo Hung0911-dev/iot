@@ -13,7 +13,7 @@ const mqttClient = mqtt.connect("mqtts://eb4d5208a7ea4b5ea2269b63abb4237c.s1.eu.
     password: process.env.MQTT_PASSWORD || 'a',
     rejectUnauthorized: true
 });
-
+const PORT = 8000;
 const TOPICS = ["IoT_OutDoor", "IoT_InDoor"];
 
 async function setupMqttAndMongo() {
@@ -63,7 +63,10 @@ async function setupMqttAndMongo() {
 
 setupMqttAndMongo().catch(console.error);
 
-module.exports = async (req, res) => {
-    console.log("HTTP request received");
+app.get('/', (req, res) => {
     res.status(200).send("MQTT and MongoDB setup are running successfully.");
-};
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
