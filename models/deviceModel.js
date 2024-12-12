@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 
 const deviceSchema = new mongoose.Schema(
     {
+        userId: { type: String, required: true },
         name: { type: String, required: true },
         location: { type: String, required: true },
         status: { type: Boolean, required: true },
