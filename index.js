@@ -5,7 +5,13 @@ const cors = require('cors');
 
 const userRoute = require("./routes/userRoute")
 const deviceRoute = require("./routes/deviceRoute");
-const { temperatureDataListening, humidityDataListening, gasDataListening, flameDataListening, vibrationDataListening } = require('./services/indoorServices/indoorService');
+const { 
+    temperatureDataListening, 
+    humidityDataListening, 
+    gasDataListening, 
+    flameDataListening, 
+    vibrationDataListening 
+} = require('./services/indoorServices/indoorService');
 const { createWebSocketServer } = require('./sockets/websocketServer');
 
 const mongoUri = process.env.MONGO_URI;
@@ -23,6 +29,10 @@ app.use("/api/devices", deviceRoute);
 // create socket connect to get the data from mqtt broker
 const io = createWebSocketServer();
 temperatureDataListening(io);
+humidityDataListening(io);
+gasDataListening(io);
+flameDataListening(io);
+vibrationDataListening(io);
 
 
 app.get('/', (req, res) => {
