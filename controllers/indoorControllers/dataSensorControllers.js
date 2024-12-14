@@ -1,21 +1,182 @@
-require('dotenv').config();
+const dataModel = require("../../models/dataModel")
+const detectModel = require("../../models/detectModel")
+const deviceModel = require("../../models/deviceModel")
+const { 
+    temperatureDataListening, 
+    humidityDataListening, 
+    gasDataListening, 
+    flameDataListening, 
+    vibrationDataListening 
+} = require("../../services/indoorServices/indoorService")
 
-const dataModel = require("../../models/deviceModel");
-const mqtt = require("mqtt");
-const router = express.Router()
+async function processSensorData(sensorData){
+    try {
+        
+        const device = await deviceModel.findOne({
+            name: sensorData.deviceName,
+            typeDevice: sensorData.sensorType
+        })
+        
+        if(device.type == "sensor"){
+            const data = new dataModel({
+                deviceId: device._id,
+                sensorType: device.typeDevice,
+                value: sensorData.value
+            })
+            await data.save()
+            return data;
+        } else {
+            const detect = new detectModel({
+                deviceId: device._id,
+                sensorType: device.typeDevice,
+                value: sensorData.value
+            })
+            await detect.save()
+            return detect;
+        }
 
-const brokerUrl = process.env.BROKER_URL;
-const mqttUsername = process.env.MQTT_USERNAME;
-const mqttPassword = process.env.MQTT_PASSWORD;
+    } catch (error){
+        console.error("Error processing and updating sensor data: ", error)
+    }
+}
 
-const options = {
-    clientId: `mqtt_${Math.random().toString(16).slice(3)}`,
-    clean: true,
-    connectTimeout: 5000,
-    username: mqttUsername,
-    password: mqttPassword
-};
+const getDataSensor = async (deviceId) => {
+    try {
+        const sensorData = await dataModel.findOne({deviceId})
+        return sensorData;
+    } catch (error) {
+        console.log(error);
+        res.status(500).json(error)
+    }
+}
 
-// Connect to Hive Broker
-const client = mqtt.connect(brokerUrl, options);
+const getDetectSensor = async (deviceId) => {
+    try {
+        const detectData = await detectModel.findOne({deviceId})
+        return detectData;
+    } catch (error) {
+        console.log(error);
+        res.status(500).json(error)
+    }
+}
 
+const getData = async (req, res) => {
+    const deviceId = req.params.deviceId;
+    try{
+        const device = await deviceModel.findById(deviceId)
+        if(device.type === "sensor"){
+            const data = await getDataSensor(deviceId);
+            return data;
+        } else {
+            const data = await getDetectSensor(deviceId);
+            return data;
+        }
+    }catch(error){
+        console.log(error)
+    }
+}
+
+const getTemperatureDataSensor = async (req, res) => {
+    try{
+        const userId = req.params.userId;
+        const data = await temperatureDataListening(userId);
+        if (!data) {
+            return res.status(404).json({
+                message: "No temperature data found"
+            });
+        }
+        res.status(200).json({
+            message: "Temperature data collected",
+            data: data,
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({error: error.message})
+    }
+}
+
+const getHumidityDataSensor = async (req, res) => {
+    try{
+        const userId = req.params.userId;
+        const data = await humidityDataListening(userId);
+        if (!data) {
+            return res.status(404).json({
+                message: "No humidity data found"
+            });
+        }
+        res.status(200).json({
+            message: "Humidity data collected",
+            data: data,
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({error: error.message})
+    }
+}
+
+const getGasDataSensor = async (req, res) => {
+    try{
+        const userId = req.params.userId;
+        const data = await gasDataListening(userId);
+        if (!data) {
+            return res.status(404).json({
+                message: "No gas data found"
+            });
+        }
+        res.status(200).json({
+            message: "Gas data collected",
+            data: data,
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({error: error.message})
+    }
+}
+
+const getFlameDataSensor = async (req, res) => {
+    try{
+        const userId = req.params.userId;
+        const data = await flameDataListening(userId);
+        if (!data) {
+            return res.status(404).json({
+                message: "No flame data found"
+            });
+        }
+        res.status(200).json({
+            message: "Flame data collected",
+            data: data,
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({error: error.message})
+    }
+}
+
+const getVibrationDataSensor = async (req, res) => {
+    try{
+        const userId = req.params.userId;
+        const data = await vibrationDataListening(userId);
+        if (!data) {
+            return res.status(404).json({
+                message: "No vibration data found"
+            });
+        }
+        res.status(200).json({
+            message: "Vibration data collected",
+            data: data,
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({error: error.message})
+    }
+}
+
+module.exports = { 
+    getData, 
+    processSensorData, 
+    getTemperatureDataSensor, 
+    getGasDataSensor, 
+    getHumidityDataSensor, 
+    getVibrationDataSensor,
+    getFlameDataSensor
+}
