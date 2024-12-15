@@ -9,7 +9,7 @@ const mqttPassword = process.env.MQTT_PASSWORD;
 
 // Connect to Hive Broker
 
-async function connectToMqttBroker(topic, io) {
+async function connectToMqttBroker(io) {
     return new Promise((resolve, reject) => {
         const options = {
             clientId: `Math.random().toString(16).substr(2, 8)`,
@@ -19,17 +19,26 @@ async function connectToMqttBroker(topic, io) {
             password: mqttPassword
         };
 
+        const topics = [
+            'Iot_InDoor/temperature',
+            'Iot_InDoor/humidity',
+            'Iot_InDoor/gas',
+            'Iot_InDoor/flame',
+            'Iot_InDoor/vibration',
+        ];
+
         const mqttClient = mqtt.connect(brokerUrl, options);
 
         mqttClient.on('connect', () => {
             
             console.log(`Connected to MQTT broker!`);
 
-            mqttClient.subscribe(topic, { qos: 1 }, (err) => {
+            mqttClient.subscribe(topics, { qos: 1 }, (err) => {
                 if (err) {
                     reject('Subscription error:', err);
                 } else {
-                    console.log(`Successfully subscribed to topic: ${topic}`);
+                    console.log(`Successfully subscribed to topics: ${topics.join(', ')}`);
+                    resolve(mqttClient)
                 }
             });
         });
@@ -41,7 +50,7 @@ async function connectToMqttBroker(topic, io) {
 
                 console.log(`Received JSON message on topic '${topic}':`, jsonData);
 
-                const device = await findDeviceByNameAndSensor(jsonData.deviceName, jsonData.sensorType)
+                // const device = await findDeviceByNameAndSensor(jsonData.deviceName, jsonData.sensorType)
 
                 // Save the data to MongoDB
                 // const newData = new dataModel({
@@ -53,7 +62,8 @@ async function connectToMqttBroker(topic, io) {
                 // await newData.save();
                 // console.log("Data saved to MongoDB:", newData);
 
-                io.emit(`${topic}`, jsonData)
+                // Emit the data to clients via Socket.IO
+                io.emit(topic, jsonData);
 
                 resolve(jsonData);
             } catch (error) {

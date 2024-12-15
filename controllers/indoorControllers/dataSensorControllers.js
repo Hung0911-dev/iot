@@ -77,98 +77,23 @@ const getData = async (req, res) => {
 }
 
 const getTemperatureDataSensor = async (req, res) => {
-    try{
-        const userId = req.params.userId;
-        const data = await temperatureDataListening(userId);
-        if (!data) {
-            return res.status(404).json({
-                message: "No temperature data found"
-            });
-        }
-        res.status(200).json({
-            message: "Temperature data collected",
-            data: data,
-        })
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({error: error.message})
-    }
+
 }
 
 const getHumidityDataSensor = async (req, res) => {
-    try{
-        const userId = req.params.userId;
-        const data = await humidityDataListening(userId);
-        if (!data) {
-            return res.status(404).json({
-                message: "No humidity data found"
-            });
-        }
-        res.status(200).json({
-            message: "Humidity data collected",
-            data: data,
-        })
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({error: error.message})
-    }
+
 }
 
 const getGasDataSensor = async (req, res) => {
-    try{
-        const userId = req.params.userId;
-        const data = await gasDataListening(userId);
-        if (!data) {
-            return res.status(404).json({
-                message: "No gas data found"
-            });
-        }
-        res.status(200).json({
-            message: "Gas data collected",
-            data: data,
-        })
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({error: error.message})
-    }
+
 }
 
 const getFlameDataSensor = async (req, res) => {
-    try{
-        const userId = req.params.userId;
-        const data = await flameDataListening(userId);
-        if (!data) {
-            return res.status(404).json({
-                message: "No flame data found"
-            });
-        }
-        res.status(200).json({
-            message: "Flame data collected",
-            data: data,
-        })
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({error: error.message})
-    }
+
 }
 
 const getVibrationDataSensor = async (req, res) => {
-    try{
-        const userId = req.params.userId;
-        const data = await vibrationDataListening(userId);
-        if (!data) {
-            return res.status(404).json({
-                message: "No vibration data found"
-            });
-        }
-        res.status(200).json({
-            message: "Vibration data collected",
-            data: data,
-        })
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({error: error.message})
-    }
+
 }
 
 module.exports = { 
