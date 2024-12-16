@@ -1,13 +1,19 @@
 const express = require('express');
-const { getTemperatureDataSensor, getHumidityDataSensor, getGasDataSensor, getFlameDataSensor, getVibrationDataSensor } = require('../../controllers/indoorControllers/dataSensorControllers');
+const { 
+    getAllTemperatureDataSensor, 
+    getAllHumidityDataSensor, 
+    getAllGasDataSensor, 
+    getAllFlameDataSensor, 
+    getAllVibrationDataSensor 
+} = require('../../controllers/indoorControllers/dataSensorControllers');
 
 
 const router = express.Router();
 
-router.get('/:userId/indoor/temperature', getTemperatureDataSensor)
-router.get('/:userId/indoor/humidity', getHumidityDataSensor)
-router.get('/:userId/indoor/gas', getGasDataSensor)
-router.get('/:userId/indoor/flame', getFlameDataSensor)
-router.get('/:userId/indoor/vibration', getVibrationDataSensor)
+router.get('/data/temperature', getAllTemperatureDataSensor)
+router.get('/data/humidity', getAllHumidityDataSensor)
+router.get('/data/gas', getAllGasDataSensor)
+router.get('/data/flame', getAllFlameDataSensor)
+router.get('/data/vibration', getAllVibrationDataSensor)
 
 module.exports = router;
