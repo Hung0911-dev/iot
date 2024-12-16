@@ -43,7 +43,7 @@ app.listen(port, () => {
 
 mongoose.connect(mongoUri, {
 }).then(() => {
-    const brokerUrl = 'mqtts://877ab903f4a0407aa62686c3d962bb59.s1.eu.hivemq.cloud:8883';
+    const brokerUrl = 'mqtts://1836f558f34d4320967bb0f1afe9b517.s1.eu.hivemq.cloud:8883';
  
 const options = {
   clientId: `mqtt_${Math.random().toString(16).slice(3)}`, 

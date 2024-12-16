@@ -48,7 +48,7 @@ async function connectToMqttBroker(io) {
                 const jsonString = message.toString();
                 const jsonData = JSON.parse(jsonString);
 
-                console.log(`Received JSON message on topic '${topic}':`, jsonData);
+                // console.log(`Received JSON message on topic '${topic}':`, jsonData);
 
                 // const device = await findDeviceByNameAndSensor(jsonData.deviceName, jsonData.sensorType)
 

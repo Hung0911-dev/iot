@@ -6,7 +6,8 @@ const {
     humidityDataListening, 
     gasDataListening, 
     flameDataListening, 
-    vibrationDataListening 
+    vibrationDataListening, 
+    getHistoryData
 } = require("../../services/indoorServices/indoorService")
 
 async function processSensorData(sensorData){
@@ -75,7 +76,16 @@ const getData = async (req, res) => {
         console.log(error)
     }
 }
-
+const handleGetHistoryData = async (req, res) => {
+    try{
+        const date = req.body.date
+        console.log(date)
+        const data = await getHistoryData(date)
+        return res.json(data)
+    } catch(err){
+        console.log(err)
+    }
+}
 const getTemperatureDataSensor = async (req, res) => {
 
 }
@@ -97,7 +107,7 @@ const getVibrationDataSensor = async (req, res) => {
 }
 
 module.exports = { 
-    getData, 
+    handleGetHistoryData, 
     processSensorData, 
     getTemperatureDataSensor, 
     getGasDataSensor, 
