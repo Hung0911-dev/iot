@@ -1,6 +1,6 @@
-const deviceModel = require("../models/deviceModel");
 const dataModel = require("../models/dataModel");
 const detectModel = require("../models/detectModel")
+const deviceModel = require("../models/deviceModel")
 
 const registerDevice = async (req, res) => {
     const { userId, name, location, status, typeDevice, type } = req.body
@@ -70,7 +70,7 @@ const findDevice = async (req, res) => {
 const getDevice = async (req, res) => {
     try{
         const devices = await deviceModel.find();
-        // res.status(200).json(devices);
+        res.status(200).json(devices);
         return devices;
     } catch (error){
         console.log(error);
@@ -78,16 +78,6 @@ const getDevice = async (req, res) => {
     }
 }
 
-const findDeviceByNameAndSensor = async (name, typeDevice) => {
-    try{
-        const device = await deviceModel.findOne({
-            name: name,
-            typeDevice: typeDevice
-        })
-        return device;
-    } catch (error) {
-        console.log(error)
-    }
-}
 
-module.exports = { registerDevice, findDevice, getDevice, findDeviceByNameAndSensor }
+
+module.exports = { registerDevice, findDevice, getDevice }

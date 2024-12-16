@@ -24,7 +24,7 @@ app.use(cors());
 
 app.use("/api/users", userRoute);
 app.use("/api/devices", deviceRoute);
-app.use("/api/data", indoorRoute);
+app.use("/api/indoor", indoorRoute);
 
 // Received the mqtt data from topic
 const io = createWebSocketServer();
