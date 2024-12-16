@@ -7,7 +7,10 @@ const {
     gasDataListening, 
     flameDataListening, 
     vibrationDataListening, 
-    getHistoryData
+    getHistoryData,
+    getTemperatureData,
+    getGasData,
+    getHumidityData
 } = require("../../services/indoorServices/indoorService")
 
 async function processSensorData(sensorData){
@@ -79,39 +82,72 @@ const getData = async (req, res) => {
 const handleGetHistoryData = async (req, res) => {
     try{
         const date = req.body.date
-        console.log(date)
-        const data = await getHistoryData(date)
+        const page = parseInt(req.query.page)
+        const data = await getHistoryData(date, page)
         return res.json(data)
     } catch(err){
         console.log(err)
     }
 }
 const getTemperatureDataSensor = async (req, res) => {
-
+    try{
+        const date = req.body.date
+        const page = parseInt(req.query.page)
+        const data = await getTemperatureData(date, page)
+        return res.json(data)
+    } catch(err){
+        console.log(err)
+    }
 }
 
 const getHumidityDataSensor = async (req, res) => {
-
+    try{
+        const date = req.body.date
+        const page = parseInt(req.query.page)
+        const data = await getHumidityData(date, page)
+        return res.json(data)
+    } catch(err){
+        console.log(err)
+    }
 }
 
 const getGasDataSensor = async (req, res) => {
+    try{
+        const date = req.body.date
+        const page = parseInt(req.query.page)
+        const data = await getGasData(date, page)
+        return res.json(data)
+    } catch(err){
+        console.log(err)
+    }
+}
+const getAllIndoorData = async (req, res) => {
+    try{
+        const date = req.body.date
+        const page = parseInt(req.query.page)
+        const gasData = await getGasData(date, page)
+        const temperatureData = await getTemperatureData(date, page)
+        const humidityData = await getHumidityData(date, page)
+
+        return res.json({gasData, temperatureData, humidityData})
+    } catch(err){
+        console.log(err)
+    }
+}
+const getAllFlameDataSensor = async (req, res) => {
 
 }
 
-const getFlameDataSensor = async (req, res) => {
-
-}
-
-const getVibrationDataSensor = async (req, res) => {
+const getAllVibrationDataSensor = async (req, res) => {
 
 }
 
 module.exports = { 
-    handleGetHistoryData, 
+    getData, 
     processSensorData, 
     getTemperatureDataSensor, 
-    getGasDataSensor, 
-    getHumidityDataSensor, 
-    getVibrationDataSensor,
-    getFlameDataSensor
+    handleGetHistoryData,
+    getHumidityDataSensor,
+    getGasDataSensor,
+    getAllIndoorData
 }

@@ -1,7 +1,7 @@
 require('dotenv').config();
 const mqtt = require("mqtt");
-const dataModel = require("../models/dataModel");
-const { findDeviceByNameAndSensor } = require('../controllers/deviceControllers');
+const { saveAvgDataByDevice, processMessage } = require('./indoorServices/dataService');
+const { makeCall } = require('./voiceCallService');
 
 const brokerUrl = process.env.BROKER_URL;
 const mqttUsername = process.env.MQTT_USERNAME;
@@ -48,24 +48,15 @@ async function connectToMqttBroker(io) {
                 const jsonString = message.toString();
                 const jsonData = JSON.parse(jsonString);
 
-                // console.log(`Received JSON message on topic '${topic}':`, jsonData);
-
-                // const device = await findDeviceByNameAndSensor(jsonData.deviceName, jsonData.sensorType)
-
-                // Save the data to MongoDB
-                // const newData = new dataModel({
-                //     deviceId: device._id,
-                //     sensorType: device.sensorType,
-                //     value: device.value,
-                // });
-
-                // await newData.save();
-                // console.log("Data saved to MongoDB:", newData);
+                console.log(`Received JSON message on topic '${topic}':`, jsonData);
+                // if(jsonData.sensorType === "vibration" && jsonData.value === 1){
+                //     makeCall()
+                // }
+                processMessage(jsonData)
 
                 // Emit the data to clients via Socket.IO
                 io.emit(topic, jsonData);
 
-                resolve(jsonData);
             } catch (error) {
                 console.error('Error parsing JSON message:', error);
             }
