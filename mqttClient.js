@@ -1,7 +1,7 @@
 const mqtt = require('mqtt');
 
 // HiveMQ Cloud cluster URL
-const brokerUrl = 'mqtts://877ab903f4a0407aa62686c3d962bb59.s1.eu.hivemq.cloud:8883';
+const brokerUrl = 'mqtts://1836f558f34d4320967bb0f1afe9b517.s1.eu.hivemq.cloud:8883';
 
 // MQTT options with username and password
 const options = {
@@ -19,7 +19,7 @@ client.on('connect', () => {
   console.log('Connected to HiveMQ Cloud.');
 
   // Subscribe to the 'Iot_InDoor' topic
-  const topic = 'Iot_InDoor/temperature';
+  const topic = 'Iot_InDoor/alerts';
   client.subscribe(topic, { qos: 1 }, (err) => {
     if (!err) {
       console.log(`Subscribed to topic: ${topic}`);

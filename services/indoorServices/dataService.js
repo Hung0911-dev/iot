@@ -89,6 +89,6 @@ async function saveAverageData() {
 
 
 
-setInterval(saveAverageData, 60*1000); // 1 hour in milliseconds
+setInterval(saveAverageData, 60*60*1000); // 1 hour in milliseconds
 
 module.exports = { saveAvgDataByDevice, processMessage }

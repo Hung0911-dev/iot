@@ -1,9 +1,9 @@
 const mongoose = require('mongoose')
 
-const notificationSchema = new mongoose.Schema(
+const alertSchema = new mongoose.Schema(
     {
-        userId: { type: String, require: true },
         deviceId: { type: String, require: true },
+        sensorType: { type: String, require: true },
         alert: { type: String, require: true },
     },
     {
@@ -11,6 +11,6 @@ const notificationSchema = new mongoose.Schema(
     }
 )
 
-const Noti = mongoose.model('Noti', notificationSchema);
+const Alert = mongoose.model('Alert', alertSchema);
 
-module.exports = Noti;
+module.exports = Alert;

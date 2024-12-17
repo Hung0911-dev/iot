@@ -1,6 +1,7 @@
 require('dotenv').config();
 const mqtt = require("mqtt");
 const { saveAvgDataByDevice, processMessage } = require('./indoorServices/dataService');
+const { saveAlert } = require('./indoorServices/alertService');
 
 const brokerUrl = process.env.BROKER_URL;
 const mqttUsername = process.env.MQTT_USERNAME;
@@ -23,7 +24,7 @@ async function connectToMqttBroker(io) {
             'Iot_InDoor/gas',
             'Iot_InDoor/flame',
             'Iot_InDoor/vibration',
-            'test-event'
+            'Iot_InDoor/alert',
         ];
 
         const mqttClient = mqtt.connect(brokerUrl, options);
@@ -49,10 +50,14 @@ async function connectToMqttBroker(io) {
 
                 console.log(`Received JSON message on topic '${topic}':`, jsonData);
 
-                processMessage(jsonData)
-
-                // Emit the data to clients via Socket.IO
-                io.emit(topic, jsonData);
+                if(topic === "Iot_InDoor/alert"){
+                    saveAlert(jsonData.deviceName, jsonData.sensorType, jsonData.message)
+                    io.emit(topic, jsonData);
+                } else {
+                    processMessage(jsonData)
+                    // Emit the data to clients via Socket.IO
+                    io.emit(topic, jsonData);
+                }
 
             } catch (error) {
                 console.error('Error parsing JSON message:', error);
