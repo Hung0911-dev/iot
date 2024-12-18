@@ -239,48 +239,51 @@ const getGasData = async (dateFilter, page ) => {
       query = { createdAt: { $gte: startOfYear, $lte: endOfYear } };
       groupBy = { month: { $month: "$createdAt" }, sensorType: "$sensorType" };
     }
-} else {
-const skip = (page - 1) * 10
-    const findAllData = await dataModel.find({
-      sensorType: 'gas'
-    })
-    .populate('deviceId')
-    .limit(10)
-    .skip(skip)
-    return findAllData
-}
-const aggregateResult = await dataModel.aggregate([
-{ $match: query },
-{
-  $group: {
-    _id: groupBy,
-    avgValue: { $avg: "$value" },
+  } else {
+  const skip = (page - 1) * 10
+      const findAllData = await dataModel.find({
+        sensorType: 'gas'
+      })
+      .populate('deviceId')
+      .limit(10)
+      .skip(skip)
+      return findAllData
+  }
+  const aggregateResult = await dataModel.aggregate([
+  { $match: query },
+  {
+    $group: {
+      _id: groupBy,
+      avgValue: { $avg: "$value" },
+    },
   },
-},
-{ $sort: { "_id.hour": 1, "_id.day": 1, "_id.month": 1 } },
-{ $skip: skip }, // Skip documents for pagination
-{ $limit: limit }, // Limit documents for pagination
-]);
+  { $sort: { "_id.hour": 1, "_id.day": 1, "_id.month": 1 } },
+  { $skip: skip }, 
+  { $limit: limit }, 
+  ]);
 
-// Format the result
-const formattedResult = {};
-aggregateResult.forEach((item) => {
-const timeKey = item._id.hour || item._id.day || item._id.month;
-const sensorType = item._id.sensorType;
+  // Format the result
+  const formattedResult = {};
+  aggregateResult.forEach((item) => {
+  const timeKey = item._id.hour || item._id.day || item._id.month;
+  const sensorType = item._id.sensorType;
 
-if (!formattedResult[timeKey]) {
-  formattedResult[timeKey] = {};
-}
-formattedResult[timeKey][sensorType] = parseFloat(item.avgValue.toFixed(2));
-});
+  if (!formattedResult[timeKey]) {
+    formattedResult[timeKey] = {};
+  }
+  formattedResult[timeKey][sensorType] = parseFloat(item.avgValue.toFixed(2));
+  });
 
-const resultArray = Object.keys(formattedResult).map((time) => ({
-time: time,
-...formattedResult[time],
-}));
+  const resultArray = Object.keys(formattedResult).map((time) => ({
+  time: time,
+  ...formattedResult[time],
+  }));
 
-return resultArray;
-}
+  return resultArray;
+  }
+  const getFlameData = async (dateFilter, page) => {
+    
+  }
 module.exports = {
     getHistoryData,
     getTemperatureData,
