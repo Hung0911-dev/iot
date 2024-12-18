@@ -2,6 +2,7 @@ require('dotenv').config();
 const mqtt = require("mqtt");
 const { saveAvgDataByDevice, processMessage } = require('./indoorServices/dataService');
 const { saveAlert } = require('./indoorServices/alertService');
+const { makeCall } = require('./voiceCallService');
 
 const brokerUrl = process.env.BROKER_URL;
 const mqttUsername = process.env.MQTT_USERNAME;
