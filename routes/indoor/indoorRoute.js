@@ -7,5 +7,4 @@ const router = express.Router();
 router.post('/getHistoryData', handleGetHistoryData)
 router.post('/getIndoorHistoryData', getAllIndoorData)
 
-
 module.exports = router;

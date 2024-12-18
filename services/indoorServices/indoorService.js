@@ -35,8 +35,7 @@ const getHistoryData = async (dateFilter, page) => {
         const skip = (page - 1) * 10
         const findAllData = await dataModel.find({})
         .populate('deviceId')
-        .limit(10)
-        .skip(skip)
+
         return findAllData
       }
       aggregateResult = await dataModel.aggregate([
@@ -112,6 +111,13 @@ const getTemperatureData = async (dateFilter, page ) => {
   const aggregateResult = await dataModel.aggregate([
     { $match: query },
     {
+      $lookup: {
+        from: 'devices',
+        foreignField: '_id',
+        localField: 'deviceId'
+      }
+    },
+    {
       $group: {
         _id: groupBy,
         avgValue: { $avg: "$value" },
@@ -181,6 +187,13 @@ const skip = (page - 1) * 10
 }
 const aggregateResult = await dataModel.aggregate([
 { $match: query },
+    {
+      $lookup: {
+        from: 'devices',
+        foreignField: '_id',
+        localField: 'deviceId'
+      }
+    },
 {
   $group: {
     _id: groupBy,
@@ -251,6 +264,13 @@ const getGasData = async (dateFilter, page ) => {
   }
   const aggregateResult = await dataModel.aggregate([
   { $match: query },
+  {
+    $lookup: {
+      from: 'devices',
+      foreignField: '_id',
+      localField: 'deviceId'
+    }
+  },
   {
     $group: {
       _id: groupBy,

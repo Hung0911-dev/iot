@@ -74,16 +74,7 @@ const getData = async (req, res) => {
         console.log(error)
     }
 }
-const handleGetHistoryData = async (req, res) => {
-    try{
-        const date = req.body.date
-        const page = parseInt(req.query.page)
-        const data = await getHistoryData(date, page)
-        return res.json(data)
-    } catch(err){
-        console.log(err)
-    }
-}
+
 const getTemperatureDataSensor = async (req, res) => {
     try{
         const date = req.body.date
@@ -119,15 +110,21 @@ const getGasDataSensor = async (req, res) => {
 const getAllIndoorData = async (req, res) => {
     try{
         const date = req.body.date
-        const page = parseInt(req.query.page)
-        const gasData = await getGasData(date, page)
-        const temperatureData = await getTemperatureData(date, page)
-        const humidityData = await getHumidityData(date, page)
+        const data = await getHistoryData(date, null) 
 
-        return res.json({gasData, temperatureData, humidityData})
+        return res.json(data)
     } catch(err){
         console.log(err)
     }
+}
+const handleGetHistoryData = async (req, res) => {
+    const date = req.body.date
+    const page = parseInt(req.query.page)
+    const gasData = await getGasData(date, page)
+    const temperatureData = await getTemperatureData(date, page)
+    const humidityData = await getHumidityData(date, page)
+
+    return res.json({gasData, temperatureData, humidityData})
 }
 const getAllFlameDataSensor = async (req, res) => {
 
