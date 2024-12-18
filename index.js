@@ -9,7 +9,7 @@ const indoorRoute = require("./routes/indoor/indoorRoute");
 const userInteractRoute = require("./routes/userInteractRoute");
 
 const {
-    connectToMqttBroker
+  connectToMqttBrokerIndoor
 } = require('./services/mqttIndoorConnect');
 
 const { createWebSocketServer } = require('./sockets/websocketServer');
@@ -30,7 +30,7 @@ app.use("/api/control", userInteractRoute);
 
 // Received the mqtt data from topic
 const io = createWebSocketServer();
-connectToMqttBroker(io);
+connectToMqttBrokerIndoor(io);
 
 app.get('/', (req, res) => {
     res.status(200).send("MQTT and MongoDB setup are running successfully.");

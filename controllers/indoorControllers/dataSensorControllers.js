@@ -2,11 +2,6 @@ const dataModel = require("../../models/dataModel")
 const detectModel = require("../../models/detectModel")
 const deviceModel = require("../../models/deviceModel")
 const { 
-    temperatureDataListening, 
-    humidityDataListening, 
-    gasDataListening, 
-    flameDataListening, 
-    vibrationDataListening, 
     getHistoryData,
     getTemperatureData,
     getGasData,

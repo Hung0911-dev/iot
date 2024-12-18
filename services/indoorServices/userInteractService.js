@@ -1,5 +1,6 @@
 const userInteractModel = require("../../models/userInteractModel")
 const { findDeviceByNameAndSensor } = require("../deviceService");
+const deviceModel = require("../../models/deviceModel")
 
 const mqtt = require('mqtt');
 const mqttBrokerUrl = 'mqtts://1836f558f34d4320967bb0f1afe9b517.s1.eu.hivemq.cloud:8883';
@@ -13,12 +14,11 @@ const mqttOptions = {
 
 const mqttClient = mqtt.connect(mqttBrokerUrl, mqttOptions);
 
-const controlBuzzer = async(userId, cooldown) => {
+const controlBuzzer = async(userId, command) => {
     const controlTopic = 'Iot_InDoor/control';
 
     const payload = JSON.stringify({
-        command: 'off',
-        cooldown: cooldown || 3600000, 
+        command: command,
     });
 
     mqttClient.publish(controlTopic, payload, { qos: 1 }, (err) => {
@@ -26,8 +26,13 @@ const controlBuzzer = async(userId, cooldown) => {
         console.error('Failed to publish MQTT message:', err);
       }
 
-      saveUserInteract("Buzzer", "Buzzer turn-off", userId);
-      console.log('Buzzer turn-off command sent:', payload);
+      saveUserInteract("Buzzer", `Buzzer turn-${command}`, userId);
+      if(command === "on"){
+        updateBuzzerDevice(true);
+      } else {
+        updateBuzzerDevice(false);
+      }
+      console.log(`Buzzer turn-${command} command sent:`, payload);
 
     });
 }
@@ -44,6 +49,19 @@ const saveUserInteract = async(device, action, userId) => {
     } catch (error) {
         console.log(error);
     }
+}
+
+const updateBuzzerDevice = async(status) => {
+  try{  
+    await deviceModel.findOneAndUpdate(
+      { name: "Buzzer" },
+      { $set: { status: status } },
+      { new: true, useFindAndModify: false }
+    );
+
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 module.exports = { controlBuzzer }
