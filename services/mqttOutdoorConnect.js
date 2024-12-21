@@ -1,11 +1,11 @@
 require('dotenv').config();
 const mqtt = require("mqtt");
 
-const brokerUrl = process.env.BROKER_URL;
+const brokerUrl = process.env.BROKER_URL_OUTDOOR;
 const mqttUsername = process.env.MQTT_USERNAME;
 const mqttPassword = process.env.MQTT_PASSWORD;
 
-async function connectToMqttBrokerOutdoor(io) {
+async function connectToMqttBrokerOutdoor() {
     return new Promise((resolve, reject) => {
         const options = {
             clientId: `Math.random().toString(16).substr(2, 8)`,
@@ -16,7 +16,10 @@ async function connectToMqttBrokerOutdoor(io) {
         };
 
         const topics = [
-
+            "Iot_OutDoor/temperature",
+            "Iot_OutDoor/humidity",
+            "Iot_OutDoor/air",
+            "Iot_OutDoor/motion"
         ];
 
         const mqttClient = mqtt.connect(brokerUrl, options);

@@ -15,6 +15,7 @@ const {
 const { createWebSocketServer } = require('./sockets/websocketServer');
 const Outdoor = require('./models/Outdoor');
 const InDoor = require('./models/InDoor');
+const { connectToMqttBrokerOutdoor } = require('./services/mqttOutdoorConnect');
 
 const mongoUri = process.env.MONGO_URI;
 const port = process.env.PORT
@@ -33,6 +34,7 @@ app.use("/api/controll", userInteractRoute);
 // Received the mqtt data from topic
 const io = createWebSocketServer();
 connectToMqttBrokerIndoor(io);
+connectToMqttBrokerOutdoor();
 
 app.get('/', (req, res) => {
     res.status(200).send("MQTT and MongoDB setup are running successfully.");
