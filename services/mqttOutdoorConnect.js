@@ -1,11 +1,12 @@
 require('dotenv').config();
 const mqtt = require("mqtt");
+const { processMessage } = require('./outdoorService/dataService');
 
 const brokerUrl = process.env.BROKER_URL_OUTDOOR;
 const mqttUsername = process.env.MQTT_USERNAME;
 const mqttPassword = process.env.MQTT_PASSWORD;
 
-async function connectToMqttBrokerOutdoor() {
+async function connectToMqttBrokerOutdoor(io) {
     return new Promise((resolve, reject) => {
         const options = {
             clientId: `Math.random().toString(16).substr(2, 8)`,
@@ -37,14 +38,24 @@ async function connectToMqttBrokerOutdoor() {
                 }
             });
         });
-
+        let outDoorDataArray = []
+        let countOutDoorData = 0;
         mqttClient.on('message', async (topic, message) => {
             try {
                 const jsonString = message.toString();
                 const jsonData = JSON.parse(jsonString);
 
-                console.log(`Received JSON message on topic '${topic}':`, jsonData);
+                // console.log(`Received JSON message on topic '${topic}':`, jsonData);
+                io.emit(topic, jsonData);
 
+                if(countOutDoorData === 4){
+                    processMessage(outDoorDataArray)
+                    countOutDoorData = 0
+                    outDoorDataArray = []
+                } else {
+                    outDoorDataArray.push(jsonData)
+                    countOutDoorData++;
+                }
             } catch (error) {
                 console.error('Error parsing JSON message:', error);
             }

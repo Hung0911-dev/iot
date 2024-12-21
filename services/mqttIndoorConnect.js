@@ -43,22 +43,17 @@ async function connectToMqttBrokerIndoor(io) {
                 }
             });
         });
-
+        
         mqttClient.on('message', async (topic, message) => {
             try {
                 const jsonString = message.toString();
                 const jsonData = JSON.parse(jsonString);
 
-                console.log(`Received JSON message on topic '${topic}':`, jsonData);
+                // console.log(`Received JSON message on topic '${topic}':`, jsonData);
 
-                if(topic === "Iot_InDoor/alert"){
-                    saveAlert(jsonData.deviceName, jsonData.sensorType, jsonData.message)
-                    io.emit(topic, jsonData);
-                } else {
-                    processMessage(jsonData)
-                    // Emit the data to clients via Socket.IO
-                    io.emit(topic, jsonData);
-                }
+
+                processMessage(jsonData)
+                io.emit(topic, jsonData);
 
             } catch (error) {
                 console.error('Error parsing JSON message:', error);

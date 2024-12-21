@@ -31,15 +31,11 @@ function calculateAverageByDevice(sensorData) {
 }
 
 function processMessage(jsonData) {
-    if (jsonData.length > 0) {
-
-        jsonData.map((data) => {
-            const { deviceName, sensorType, value } = data;
-
-            if(sensorDataStore[sensorType]){
+    if (jsonData.value !== undefined && jsonData.value > 0) {
+        const { deviceName, sensorType, value } = jsonData;
+        if(sensorDataStore[sensorType]){
                 sensorDataStore[sensorType].push({deviceName, value})
             }
-        })
     }
 }
 
@@ -56,7 +52,6 @@ const saveAvgDataByDevice = async (deviceName, sensorType, value) => {
             })
     
             await newData.save();
-            console.log("Data saved to MongoDB: ", newData);
             
         }
 
@@ -68,7 +63,6 @@ const saveAvgDataByDevice = async (deviceName, sensorType, value) => {
             })
     
             await newData.save();
-            console.log("Data saved to MongoDB: ", newData);
         }
         
     } catch (error) {
@@ -93,6 +87,8 @@ async function saveAverageData() {
 
 
 
-setInterval(saveAverageData, 5000); 
+setInterval(
+    saveAverageData
+, 60*1000); 
 
 module.exports = { saveAvgDataByDevice, processMessage }

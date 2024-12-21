@@ -50,6 +50,9 @@ const outdoorSchema = new mongoose.Schema(
             },
             _id: false
         },
+    },
+    {
+        timestamps: true
     }
 )
 
