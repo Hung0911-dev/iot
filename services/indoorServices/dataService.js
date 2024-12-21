@@ -1,6 +1,7 @@
 const { findDeviceByNameAndSensor } = require("../deviceService")
 const dataModel = require("../../models/dataModel")
-const detectModel = require("../../models/detectModel")
+const detectModel = require("../../models/detectModel");
+const InDoor = require("../../models/InDoor");
 
 const sensorDataStore = {
     'temperature': [],
@@ -30,13 +31,15 @@ function calculateAverageByDevice(sensorData) {
 }
 
 function processMessage(jsonData) {
-    if (jsonData.value !== undefined && jsonData.value > 0) {
+    if (jsonData.length > 0) {
 
-        const { deviceName, sensorType, value } = jsonData;
+        jsonData.map((data) => {
+            const { deviceName, sensorType, value } = data;
 
-        if(sensorDataStore[sensorType]){
-            sensorDataStore[sensorType].push({deviceName, value})
-        }
+            if(sensorDataStore[sensorType]){
+                sensorDataStore[sensorType].push({deviceName, value})
+            }
+        })
     }
 }
 
@@ -54,6 +57,7 @@ const saveAvgDataByDevice = async (deviceName, sensorType, value) => {
     
             await newData.save();
             console.log("Data saved to MongoDB: ", newData);
+            
         }
 
         if(device.type === "detect"){
@@ -89,6 +93,6 @@ async function saveAverageData() {
 
 
 
-setInterval(saveAverageData, 60*60*1000); // 1 hour in milliseconds
+setInterval(saveAverageData, 5000); 
 
 module.exports = { saveAvgDataByDevice, processMessage }

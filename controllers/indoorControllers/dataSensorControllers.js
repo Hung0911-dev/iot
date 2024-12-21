@@ -5,7 +5,8 @@ const {
     getHistoryData,
     getTemperatureData,
     getGasData,
-    getHumidityData
+    getHumidityData,
+    getTableHistoryData
 } = require("../../services/indoorServices/indoorService")
 
 async function processSensorData(sensorData){
@@ -107,6 +108,17 @@ const getGasDataSensor = async (req, res) => {
         console.log(err)
     }
 }
+const getTableData = async (req, res) => {
+    try {
+        const date = req.body.date
+        const page = parseInt(req.query.page)
+        const data = await getTableHistoryData(date, page)
+        return res.json(data)
+
+    } catch(err){
+        console.log(err)
+    }
+}
 const getAllIndoorData = async (req, res) => {
     try{
         const date = req.body.date
@@ -141,5 +153,6 @@ module.exports = {
     handleGetHistoryData,
     getHumidityDataSensor,
     getGasDataSensor,
-    getAllIndoorData
+    getAllIndoorData,
+    getTableData
 }

@@ -1,12 +1,67 @@
 const mongoose = require('mongoose');
 
 const inDoorSchema = new mongoose.Schema({
-    humidity: { type: Number, required: true },
-    fire: { type: Number, required: true, unique: true },
-    gasValue: { type: Number, required: true },
-    vibration: { type: Boolean, required: true },
-    notification: { type: String, require: true },
-});
+    humidity: {
+                type: {
+                    deviceId: {
+                        type: mongoose.Schema.ObjectId,
+                        required: true,
+                        ref: 'Device'
+                    },
+                    value: Number
+                },
+                required: false,
+                _id: false
+            },
+    temperature: {
+                type: {
+                    deviceId: {
+                        type: mongoose.Schema.ObjectId,
+                        required: true,
+                        ref: 'Device'
+                    },
+                    value: Number
+                },
+                require: true,
+                _id: false
+            },
+    fire: { 
+        type: {
+                    deviceId: {
+                        type: mongoose.Schema.ObjectId,
+                        required: true,
+                        ref: 'Device'
+                    },
+                    value: Boolean,
+    
+                },
+                _id: false },
+    gasValue: { type: {
+        deviceId: {
+            type: mongoose.Schema.ObjectId,
+            required: true,
+            ref: 'Device'
+        },
+        value: Number
+    },
+    require: true,
+    _id: false },
+    vibration: { type: {
+                    deviceId: {
+                        type: mongoose.Schema.ObjectId,
+                        required: true,
+                        ref: 'Device'
+                    },
+                    value: Boolean,
+    
+                },
+                _id: false },
+},
+{
+    timestamps: true
+}
+
+);
 
 const InDoor = mongoose.model('InDoor', inDoorSchema);
 
