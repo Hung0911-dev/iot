@@ -52,6 +52,6 @@ const savedData = async () => {
 }
 setInterval(
     savedData
-, 1000*60);
+, 1000*60*5);
 
 module.exports = { processMessage }

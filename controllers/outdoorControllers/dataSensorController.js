@@ -1,15 +1,25 @@
-const { getHistoryData } = require("../../services/outdoorService/outdoorService")
+const { getHistoryData, getTableHistoryData } = require("../../services/outdoorService/outdoorService")
 
 const getAllOutdoorData = async (req, res) => {
     try{
         const date = req.body.date
-        console.log(date)
         const data = await getHistoryData(date, null) 
         return res.json(data)
     } catch(err){
         console.log(err)
     }
 }
+const getHistoryTableData = async (req, res) => {
+    try{
+        const date = req.body.date
+        const page = parseInt(req.query.page)
+        const data = await getTableHistoryData(date, page) 
+        return res.json(data)
+    } catch(err){
+        console.log(err)
+    }
+}
 module.exports={
-    getAllOutdoorData
+    getAllOutdoorData,
+    getHistoryTableData
 }

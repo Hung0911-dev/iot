@@ -131,12 +131,10 @@ const getAllIndoorData = async (req, res) => {
 }
 const handleGetHistoryData = async (req, res) => {
     const date = req.body.date
-    const page = parseInt(req.query.page)
-    const gasData = await getGasData(date, page)
-    const temperatureData = await getTemperatureData(date, page)
-    const humidityData = await getHumidityData(date, page)
+    
+    const data = await getHistoryData(date, null)
 
-    return res.json({gasData, temperatureData, humidityData})
+    return res.json(data)
 }
 const getAllFlameDataSensor = async (req, res) => {
 

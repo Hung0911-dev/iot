@@ -1,9 +1,9 @@
-const dataModel = require("../../models/dataModel")
+const dataModel = require("../../models/dataModel");
+const InDoor = require("../../models/InDoor");
 
 const getTableHistoryData = async (dateFilter, page) => {
   try {
     let query = {};
-    console.log(dateFilter)
 
     if (dateFilter) {
       if (/^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
@@ -11,7 +11,7 @@ const getTableHistoryData = async (dateFilter, page) => {
         const endOfDay = new Date(dateFilter);
         endOfDay.setHours(23, 59, 59, 999);
         query = { createdAt: { $gte: startOfDay, $lte: endOfDay } };
-        groupBy = { hour: { $hour: "$createdAt" }, sensorType: "$sensorType" };
+        groupBy = { hour: { $hour: "$createdAt" }};
       }
       else if (/^\d{4}-\d{2}$/.test(dateFilter)) {
         const [year, month] = dateFilter.split("-");
@@ -20,7 +20,7 @@ const getTableHistoryData = async (dateFilter, page) => {
 
         endOfMonth.setHours(23, 59, 59, 999);
         query = { createdAt: { $gte: startOfMonth, $lte: endOfMonth } };
-        groupBy = { day: { $dayOfMonth: "$createdAt" }, sensorType: "$sensorType" };
+        groupBy = { day: { $dayOfMonth: "$createdAt" }};
       }
       else if (/^\d{4}$/.test(dateFilter)) {
         const startOfYear = new Date(dateFilter, 0, 1); 
@@ -28,43 +28,63 @@ const getTableHistoryData = async (dateFilter, page) => {
           console.log(startOfYear)
         endOfYear.setHours(23, 59, 59, 999);
         query = { createdAt: { $gte: startOfYear, $lte: endOfYear } };
-        groupBy = { month: { $month: "$createdAt" }, sensorType: "$sensorType" };
+        groupBy = { month: { $month: "$createdAt" }};
       }
     }else {
-      const skip = (page - 1) * 10
-      const findAllData = await dataModel.find({})
-      .populate('deviceId')
+
+      const findAllData = await InDoor.find({})
+      .populate("temperature.deviceId gas.deviceId humidity.deviceId flame.deviceId vibration.deviceId")
+      
       return findAllData
     }
-    aggregateResult = await dataModel.aggregate([
+
+    const aggregateResult = await InDoor.aggregate([
       { $match: query },
-        {
-          $group: {
-            _id: groupBy,
-            avgValue: { $avg: "$value" },
-            createdAt: { $first: "$createdAt" },
-          },
+      {
+        $project: {
+          hour: { $hour: "$createdAt" },
+          day: { $dayOfMonth: "$createdAt" },
+          month: { $month: "$createdAt" },
+          createdAt: 1,
+          temperature: "$temperature.value",
+          gas: "$gas.value",
+          humidity: "$humidity.value",
+          flame: "$flame.value",
+          vibration: "$vibration.value"
         },
-        { $sort: { "_id.hour": 1, "_id.day": 1, "_id.month": 1 } },
+      },
+      {
+        $group: {
+          _id: groupBy,
+          avgTemperature: { $avg: "$temperature" },
+          avgGas: { $avg: "$gas" },
+          avgHumidity: { $avg: "$humidity" },
+          flameCount: { $sum: { $cond: ["$flame", 1, 0] } },
+          createdAt: { $first: "$createdAt" },
+          vibrationCount: { $sum: { $cond: ["$vibration", 1, 0] } },
+        },
+      },
+      { $sort: { "_id.hour": 1, "_id.day": 1, "_id.month": 1 } },
+
     ]);
-
     const formattedResult = {};
-    aggregateResult.forEach((item) => {
-      const createdAt = item.createdAt; 
-      const sensorType = item._id.sensorType;
-    
-      if (!formattedResult[createdAt]) {
-        formattedResult[createdAt] = {};
-      }
-      formattedResult[createdAt][sensorType] = parseFloat(item.avgValue.toFixed(2));
-    });
-    console.log(formattedResult)
-    const resultArray = Object.keys(formattedResult).map((time) => ({
-      time: time,
-      ...formattedResult[time],
-    }));
-
-    return resultArray;
+      aggregateResult.forEach((item) => {
+        const timeKey = item._id.hour || item._id.day || item._id.month;
+        formattedResult[timeKey] = {
+          avgTemperature: item.avgTemperature ? parseFloat(item.avgTemperature.toFixed(2)) : null,
+          avgGas: item.avgGas ? parseFloat(item.avgGas.toFixed(2)) : null,
+          avgHumidity: item.avgHumidity ? parseFloat(item.avgHumidity.toFixed(2)) : null,
+          flameCount: item.flameCount || 0,
+          vibrationCount: item.vibrationCount || 0,
+          createdAt: item.createdAt
+        };
+      });
+      const resultArray = Object.keys(formattedResult).map((time) => ({
+        time: time,
+        ...formattedResult[time],
+      }));
+  
+      return resultArray;
   } catch (error) {
     console.error("Error fetching history data:", error);
     throw error;
@@ -74,7 +94,6 @@ const getHistoryData = async (dateFilter, page) => {
 
     try {
       let query = {};
-    console.log(dateFilter)
   
       if (dateFilter) {
         if (/^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
@@ -82,7 +101,7 @@ const getHistoryData = async (dateFilter, page) => {
           const endOfDay = new Date(dateFilter);
           endOfDay.setHours(23, 59, 59, 999);
           query = { createdAt: { $gte: startOfDay, $lte: endOfDay } };
-          groupBy = { hour: { $hour: "$createdAt" }, sensorType: "$sensorType" };
+          groupBy = { hour: { $hour: "$createdAt" }};
         }
         else if (/^\d{4}-\d{2}$/.test(dateFilter)) {
           const [year, month] = dateFilter.split("-");
@@ -91,7 +110,7 @@ const getHistoryData = async (dateFilter, page) => {
   
           endOfMonth.setHours(23, 59, 59, 999);
           query = { createdAt: { $gte: startOfMonth, $lte: endOfMonth } };
-          groupBy = { day: { $dayOfMonth: "$createdAt" }, sensorType: "$sensorType" };
+          groupBy = { day: { $dayOfMonth: "$createdAt" }};
         }
         else if (/^\d{4}$/.test(dateFilter)) {
           const startOfYear = new Date(dateFilter, 0, 1); 
@@ -99,20 +118,39 @@ const getHistoryData = async (dateFilter, page) => {
             console.log(startOfYear)
           endOfYear.setHours(23, 59, 59, 999);
           query = { createdAt: { $gte: startOfYear, $lte: endOfYear } };
-          groupBy = { month: { $month: "$createdAt" }, sensorType: "$sensorType" };
+          groupBy = { month: { $month: "$createdAt" }};
         }
       }else {
         const skip = (page - 1) * 10
-        const findAllData = await dataModel.find({})
-        .populate('deviceId')
+        const findAllData = await InDoor.find({})
+        .populate("temperature.deviceId gas.deviceId humidity.deviceId motionDetect.deviceId")
         return findAllData
       }
-      aggregateResult = await dataModel.aggregate([
+      const aggregateResult = await Outdoor.aggregate([
         { $match: query },
+        {
+          $project: {
+            hour: { $hour: "$createdAt" },
+            day: { $dayOfMonth: "$createdAt" },
+            month: { $month: "$createdAt" },
+            createdAt: 1,
+            temperature: "$temperature.value",
+            gas: "$gas.value",
+            humidity: "$humidity.value",
+            flame: "$flame.value",
+            vibration: "$vibration.value"
+          },
+        },
         {
           $group: {
             _id: groupBy,
-            avgValue: { $avg: "$value" },
+            avgTemperature: { $avg: "$temperature" },
+            avgGas: { $avg: "$gas" },
+            avgHumidity: { $avg: "$humidity" },
+            createdAt: { $first: "$createdAt" },
+            
+            flameCount: { $sum: { $cond: ["$flame", 1, 0] } },
+            vibrationCount: { $sum: { $cond: ["$vibration", 1, 0] } },
           },
         },
         { $sort: { "_id.hour": 1, "_id.day": 1, "_id.month": 1 } },
@@ -120,12 +158,14 @@ const getHistoryData = async (dateFilter, page) => {
       const formattedResult = {};
       aggregateResult.forEach((item) => {
         const timeKey = item._id.hour || item._id.day || item._id.month;
-        const sensorType = item._id.sensorType;
-  
-        if (!formattedResult[timeKey]) {
-          formattedResult[timeKey] = {};
-        }
-        formattedResult[timeKey][sensorType] = parseFloat(item.avgValue.toFixed(2));
+        formattedResult[timeKey] = {
+          avgTemperature: item.avgTemperature ? parseFloat(item.avgTemperature.toFixed(2)) : null,
+          avgGas: item.avgGas ? parseFloat(item.avgGas.toFixed(2)) : null,
+          avgHumidity: item.avgHumidity ? parseFloat(item.avgHumidity.toFixed(2)) : null,
+          flameCount: item.flameCount || 0,
+          vibrationCount: item.vibrationCount || 0,
+          createdAt: item.createdAt
+        };
       });
       const resultArray = Object.keys(formattedResult).map((time) => ({
         time: time,

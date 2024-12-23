@@ -20,7 +20,7 @@ async function connectToMqttBrokerOutdoor(io) {
             "Iot_OutDoor/temperature",
             "Iot_OutDoor/humidity",
             "Iot_OutDoor/air",
-            "Iot_OutDoor/motion"
+            "Iot_OutDoor/motion",
         ];
 
         const mqttClient = mqtt.connect(brokerUrl, options);

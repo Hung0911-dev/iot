@@ -43,18 +43,23 @@ async function connectToMqttBrokerIndoor(io) {
                 }
             });
         });
-        
+        let inDoorDataArray = []
+        let countInDoorData = 0;
         mqttClient.on('message', async (topic, message) => {
             try {
                 const jsonString = message.toString();
                 const jsonData = JSON.parse(jsonString);
 
-                // console.log(`Received JSON message on topic '${topic}':`, jsonData);
-
-
-                processMessage(jsonData)
+                console.log(`Received JSON message on topic '${topic}':`, jsonData);
                 io.emit(topic, jsonData);
-
+                if(countInDoorData === 4){
+                    processMessage(inDoorDataArray)
+                    countInDoorData = 0
+                    inDoorDataArray = []
+                } else {
+                    inDoorDataArray.push(jsonData)
+                    countInDoorData++;
+                }
             } catch (error) {
                 console.error('Error parsing JSON message:', error);
             }

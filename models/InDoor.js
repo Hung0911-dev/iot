@@ -25,7 +25,7 @@ const inDoorSchema = new mongoose.Schema({
                 require: true,
                 _id: false
             },
-    fire: { 
+    flame: { 
         type: {
                     deviceId: {
                         type: mongoose.Schema.ObjectId,
@@ -36,7 +36,7 @@ const inDoorSchema = new mongoose.Schema({
     
                 },
                 _id: false },
-    gasValue: { type: {
+    gas: { type: {
         deviceId: {
             type: mongoose.Schema.ObjectId,
             required: true,
@@ -45,7 +45,8 @@ const inDoorSchema = new mongoose.Schema({
         value: Number
     },
     require: true,
-    _id: false },
+    _id: false 
+},
     vibration: { type: {
                     deviceId: {
                         type: mongoose.Schema.ObjectId,

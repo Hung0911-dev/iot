@@ -2,93 +2,59 @@ const { findDeviceByNameAndSensor } = require("../deviceService")
 const dataModel = require("../../models/dataModel")
 const detectModel = require("../../models/detectModel");
 const InDoor = require("../../models/InDoor");
+const Device = require("../../models/deviceModel");
+const mappedData = {};
 
-const sensorDataStore = {
-    'temperature': [],
-    'humidity': [],
-    'gas': [],
-    'flame': [],
-    'vibration': []
-}
+async function processMessage(jsonData) {
 
-function calculateAverageByDevice(sensorData) {
+    for (const item of jsonData) {
+      const device = await Device.findOne({ name: item.deviceName }); // Find deviceId by name
+      if (!device) {
+        throw new Error(`Device ${item.deviceName} not found`);
+      }
 
-    const groupedByDevice = sensorData.reduce((acc, { deviceName, value }) => {
-        if (!acc[deviceName]) {
-            acc[deviceName] = [];
-        }
-        acc[deviceName].push(value);
-        return acc;
-    }, {});
-
-    const averages = Object.entries(groupedByDevice).map(([deviceName, values]) => {
-        const sum = values.reduce((acc, val) => acc + val, 0);
-        const avg = sum / values.length;
-        return { deviceName, average: avg };
-    });
-
-    return averages;
-}
-
-function processMessage(jsonData) {
-    if (jsonData.value !== undefined && jsonData.value > 0) {
-        const { deviceName, sensorType, value } = jsonData;
-        if(sensorDataStore[sensorType]){
-                sensorDataStore[sensorType].push({deviceName, value})
-            }
+      switch (item.sensorType) {
+        case 'temperature':
+          mappedData.temperature = {
+            deviceId: device._id,
+            value: item.value
+          };
+          break;
+        case 'humidity':
+          mappedData.humidity = {
+            deviceId: device._id,
+            value: item.value
+          };
+          break;
+        case 'flame':
+          mappedData.flame = {
+            deviceId: device._id,
+            value: Boolean(item.value) 
+          };
+          break;
+        case 'vibration':
+            mappedData.vibration = {
+              deviceId: device._id,
+              value: Boolean(item.value) 
+            };
+        break;
+        case 'gas':
+          mappedData.gas = {
+            deviceId: device._id,
+            value: item.value
+          };
+          break;
+      }
     }
+    return mappedData
 }
-
-const saveAvgDataByDevice = async (deviceName, sensorType, value) => {
-    
-    try{
-        const device = await findDeviceByNameAndSensor(deviceName, sensorType);
-        
-        if(device.type === "sensor"){
-            const newData = new dataModel({
-                deviceId: device._id,
-                sensorType: sensorType,
-                value: value
-            })
-    
-            await newData.save();
-            
-        }
-
-        if(device.type === "detect"){
-            const newData = new detectModel({
-                deviceId: device._id,
-                sensorType: sensorType,
-                value: value
-            })
-    
-            await newData.save();
-        }
-        
-    } catch (error) {
-        console.log(error)
-    }
+const savedData = async () => {
+    const newIndoor = new InDoor(mappedData)
+    const savedData = await newIndoor.save()
+    return savedData
 }
-
-async function saveAverageData() {
-    for (const sensorType in sensorDataStore) {
-        if (sensorDataStore[sensorType].length > 0) {
-
-            const averagesByDevice = calculateAverageByDevice(sensorDataStore[sensorType]);
-
-            for (const { deviceName, average } of averagesByDevice) {
-                await saveAvgDataByDevice(deviceName, sensorType, average);
-            }
-
-            sensorDataStore[sensorType] = [];
-        }
-    }
-}
-
-
-
 setInterval(
-    saveAverageData
-, 60*1000); 
+    savedData
+, 1000*60*5);
 
-module.exports = { saveAvgDataByDevice, processMessage }
+module.exports = { processMessage }

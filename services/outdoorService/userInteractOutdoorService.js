@@ -4,37 +4,36 @@ const deviceModel = require("../../models/deviceModel")
 
 const mqtt = require('mqtt');
 const Device = require("../../models/deviceModel");
-const mqttBrokerUrl = 'mqtts://1836f558f34d4320967bb0f1afe9b517.s1.eu.hivemq.cloud:8883';
+const mqttBrokerUrl = 'mqtts://eb95b651127d4e39afc7f2150b88a296.s1.eu.hivemq.cloud:8883';
 const mqttOptions = {
   clientId: `mqtt_${Math.random().toString(16).slice(3)}`,
   clean: true,
-  connectTimeout: 4000,
+  connectTimeout: 5000,
   username: 'Hung091103', 
   password: 'Hung091103', 
 };
 
 const mqttClient = mqtt.connect(mqttBrokerUrl, mqttOptions);
-const controlBuzzer = async(userId, command) => {
-    const controlTopic = 'Iot_InDoor/control';
-    const buzzerDevice = await Device.findOne({name: "Buzzer"})
-    const payload = JSON.stringify({
-        command: command,
-    });
+const controlLight = async (userId, command) => {
+  const controlTopic = 'Iot_OutDoor/Led_Control';
+  const ledDevice = await Device.findOne({name: "LED"})
+  const payload = JSON.stringify({
+    command: command,
+});
 
-    mqttClient.publish(controlTopic, payload, { qos: 1 }, (err) => {
-      if (err) {
-        console.error('Failed to publish MQTT message:', err);
-      }
+  mqttClient.publish(controlTopic, payload, { qos: 1 }, (err) => {
+    if (err) {
+      console.error('Failed to publish MQTT message:', err);
+    }
+    saveUserInteract(ledDevice._id, `Light turn-${command}`, userId);
+    if(command === "ON"){
+      updateLightDevice(true);
+    } else {
+      updateLightDevice(false);
+    }
+    console.log(`Light turn-${command} command sent:`, payload);
 
-      saveUserInteract(buzzerDevice._id, `Buzzer turn-${command}`, userId);
-      if(command === "on"){
-        updateBuzzerDevice(true);
-      } else {
-        updateBuzzerDevice(false);
-      }
-      console.log(`Buzzer turn-${command} command sent:`, payload);
-
-    });
+  });
 }
 
 const saveUserInteract = async(device, action, userId) => {
@@ -50,11 +49,10 @@ const saveUserInteract = async(device, action, userId) => {
         console.log(error);
     }
 }
-
-const updateBuzzerDevice = async(status) => {
+const updateLightDevice = async (status) => {
   try{  
     await deviceModel.findOneAndUpdate(
-      { name: "Buzzer" },
+      { name: "LED" },
       { $set: { status: status } },
       { new: true, useFindAndModify: false }
     );
@@ -64,4 +62,5 @@ const updateBuzzerDevice = async(status) => {
   }
 }
 
-module.exports = { controlBuzzer }
+
+module.exports = { controlLight }

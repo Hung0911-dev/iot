@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const userInteractSchema = new mongoose.Schema(
     {
         userId: { type: String, require: true },
-        device: { type: String, require: true },
+        device: { type: mongoose.Schema.ObjectId, require: true, ref:'Device' },
         action: { type: String, require: true },
     }, 
     {
