@@ -1,5 +1,5 @@
-const { controlBuzzer } = require("../../services/indoorServices/userInteractService");
-const { controlLight } = require("../../services/outdoorService/userInteractOutdoorService");
+const { controlBuzzer, getIndoorInteract } = require("../../services/indoorServices/userInteractService");
+const { controlLight, getOutdoorInteract } = require("../../services/outdoorService/userInteractOutdoorService");
 
 const turnOffBuzzer = async (req, res) => {
 
@@ -21,4 +21,15 @@ const toggleLight =  async (req, res) => {
         return res.status(500).json({ message: `Failed to send turn ${command} command: `, error: error })
     }
 }
-module.exports = { turnOffBuzzer, toggleLight };
+const handleGetOutdoorInteract = async (req, res) => {
+    const date = req.body.date
+        const data = await getOutdoorInteract(date)
+        return res.json(data)
+}
+const handleGetIndoorInteract = async (req, res) => {
+    const date = req.body.date
+
+    const data = await getIndoorInteract(date)
+    return res.json(data)
+}
+module.exports = { turnOffBuzzer, toggleLight, handleGetOutdoorInteract, handleGetIndoorInteract };

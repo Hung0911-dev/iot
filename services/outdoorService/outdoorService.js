@@ -179,8 +179,76 @@ const getTableHistoryData = async (dateFilter, page) => {
     throw error;
   }
 }
+const countMotion = async (dateFilter) => {
+  let query = {}
+  let groupBy ={}
+  if (dateFilter) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateFilter)) {
+      const startOfDay = new Date(dateFilter);
+      const endOfDay = new Date(dateFilter);
+      endOfDay.setHours(23, 59, 59, 999);
+      query = { createdAt: { $gte: startOfDay, $lte: endOfDay } };
+      groupBy = { hour: { $hour: "$createdAt" }};
+    }
+    else if (/^\d{4}-\d{2}$/.test(dateFilter)) {
+      const [year, month] = dateFilter.split("-");
+      const startOfMonth = new Date(year, month - 1, 1); 
+      const endOfMonth = new Date(year, month, 0); 
+
+      endOfMonth.setHours(23, 59, 59, 999);
+      query = { createdAt: { $gte: startOfMonth, $lte: endOfMonth } };
+      groupBy = { day: { $dayOfMonth: "$createdAt" }};
+    }
+    else if (/^\d{4}$/.test(dateFilter)) {
+      const startOfYear = new Date(dateFilter, 0, 1); 
+      const endOfYear = new Date(dateFilter, 11, 31); 
+        console.log(startOfYear)
+      endOfYear.setHours(23, 59, 59, 999);
+      query = { createdAt: { $gte: startOfYear, $lte: endOfYear } };
+      groupBy = { month: { $month: "$createdAt" }};
+    }
+  }
+  const aggregateResult = await Outdoor.aggregate([
+    {
+      $match: query
+    },
+    {
+      $project: {
+        hour: { $hour: "$createdAt" },
+        day: { $dayOfMonth: "$createdAt" },
+        month: { $month: "$createdAt" },
+        createdAt: 1,
+
+        motionDetect: "$motionDetect.value",
+      },
+    },
+    {
+      $group: {
+        _id: groupBy,
+        createdAt: { $first: "$createdAt" },
+        motionDetectCount: { $sum: { $cond: ["$motionDetect", 1, 0] } },
+      },
+    },
+    { $sort: { "_id.hour": 1, "_id.day": 1, "_id.month": 1 } },
+  ])
+  const formattedResult = {};
+    aggregateResult.forEach((item) => {
+      const timeKey = item._id.hour || item._id.day || item._id.month;
+      formattedResult[timeKey] = {
+        motionDetectCount: item.motionDetectCount || 0,
+        createdAt: item.createdAt
+      };
+    });
+
+    const resultArray = Object.keys(formattedResult).map((time) => ({
+      time,
+      ...formattedResult[time],
+    }));
+    return resultArray
+}
 module.exports={
     getAllOutdoorData,
     getHistoryData,
-    getTableHistoryData
+    getTableHistoryData,
+    countMotion
 }

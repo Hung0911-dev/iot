@@ -1,4 +1,4 @@
-const { getHistoryData, getTableHistoryData } = require("../../services/outdoorService/outdoorService")
+const { getHistoryData, getTableHistoryData, countMotion } = require("../../services/outdoorService/outdoorService")
 
 const getAllOutdoorData = async (req, res) => {
     try{
@@ -19,7 +19,17 @@ const getHistoryTableData = async (req, res) => {
         console.log(err)
     }
 }
+const handleCountMotion = async (req, res) => {
+    try{
+        const date = req.body.date
+        const data = await countMotion(date) 
+        return res.json(data)
+    } catch(err){
+        console.log(err)
+    }
+}
 module.exports={
     getAllOutdoorData,
-    getHistoryTableData
+    getHistoryTableData,
+    handleCountMotion
 }
